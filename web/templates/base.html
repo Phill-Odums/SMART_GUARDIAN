@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAFE GURDIAN - {% block title %}Dashboard{% endblock %}</title>
+
+    <!-- TailwindCSS Local for Offline Support -->
+    <script src="{{ url_for('static', filename='js/tailwind.min.js') }}"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0B0F19',
+                        panel: 'rgba(255, 255, 255, 0.02)',
+                        border: 'rgba(255, 255, 255, 0.05)',
+                        primary: '#0ea5e9',
+                        secondary: '#a855f7'
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Local Fonts: Outfit -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/outfit.css') }}">
+
+    <!-- Lucide Icons Local -->
+    <script src="{{ url_for('static', filename='js/lucide.min.js') }}"></script>
+
+    <style>
+        /* ── Theme variables ─────────────────────────── */
+        :root {
+            --bg-main: #1A1C1E;
+            /* Deep Ash Grey */
+            --bg-sidebar: rgba(20, 22, 24, 0.95);
+            /* Dark Ash Sidebar */
+            --bg-header: rgba(26, 28, 30, 0.80);
+            /* Soft Ash Header */
+            --bg-content: radial-gradient(ellipse at top, #1A1C1E, #141618, #101112);
+            --bg-orb1: rgba(142, 145, 150, 0.05);
+            /* Subtle Ash Glow */
+            --bg-orb2: rgba(100, 116, 139, 0.05);
+            --text-main: #D1D4D7;
+            /* Soft Ash Mist Text */
+            --text-muted: #8E9196;
+            /* Muted Ash Text */
+            --border-col: rgba(255, 255, 255, 0.03);
+            --panel-bg: rgba(255, 255, 255, 0.015);
+            --scrollbar-track: rgba(0, 0, 0, 0.3);
+            --scrollbar-thumb: rgba(255, 255, 255, 0.05);
+            --scrollbar-hover: rgba(255, 255, 255, 0.10);
+            --card-bg: rgba(255, 255, 255, 0.015);
+            --input-bg: rgba(0, 0, 0, 0.25);
+            --sidebar-border: rgba(255, 255, 255, 0.04);
+        }
+
+        html.light {
+            /* Clean "Universe" Aesthetic */
+            --bg-main: #FFFFFF;
+            --bg-sidebar: rgba(248, 250, 252, 0.98);
+            /* Slate-50 */
+            --bg-header: rgba(255, 255, 255, 0.95);
+            /* White Header */
+            --bg-content: linear-gradient(to bottom, #FFFFFF, #F1F5F9);
+            --bg-orb1: rgba(99, 102, 241, 0.05);
+            /* Indigo glow */
+            --bg-orb2: rgba(14, 165, 233, 0.05);
+            /* Cyan glow */
+            --text-main: #0F172A;
+            /* Slate-900 */
+            --text-muted: #64748B;
+            /* Slate-500 */
+            --border-col: #E2E8F0;
+            /* Slate-200 */
+            --panel-bg: #FFFFFF;
+            --scrollbar-track: #F1F5F9;
+            --scrollbar-thumb: #CBD5E1;
+            --scrollbar-hover: #94A3B8;
+            --card-bg: #FFFFFF;
+            --input-bg: #F8FAFC;
+            --sidebar-border: #E2E8F0;
+        }
+
+        /* ── Base styles using variables ─────────────── */
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+            transition: background 0.35s ease, color 0.35s ease;
+        }
+
+        /* Sidebar */
+        aside {
+            background: var(--bg-sidebar) !important;
+            border-color: var(--sidebar-border) !important;
+            transition: background 0.35s ease;
+        }
+
+        html.light aside .text-slate-400 {
+            color: var(--text-muted) !important;
+        }
+
+        html.light aside .text-white {
+            color: var(--text-main) !important;
+        }
+
+        /* Header */
+        header {
+            background: var(--bg-header) !important;
+            border-color: var(--sidebar-border) !important;
+            transition: background 0.35s ease;
+        }
+
+        html.light header h2 {
+            color: var(--text-main) !important;
+        }
+
+        html.light header .text-slate-400 {
+            color: var(--text-muted) !important;
+        }
+
+        /* Main area */
+        .flex-1.flex.flex-col {
+            background: var(--bg-content) !important;
+        }
+
+        /* Cards & panels */
+        html.light .bg-panel,
+        html.light [class*="bg-panel"] {
+            background: var(--card-bg) !important;
+            border-color: var(--border-col) !important;
+        }
+
+        html.light .border-border,
+        html.light [class*="border-border"] {
+            border-color: var(--border-col) !important;
+        }
+
+        html.light .text-slate-200 {
+            color: #05070A !important;
+        }
+
+        /* Near Black */
+        html.light .text-slate-300 {
+            color: #0F172A !important;
+        }
+
+        html.light .text-slate-400 {
+            color: #1E293B !important;
+        }
+
+        html.light .text-slate-500 {
+            color: #334155 !important;
+        }
+
+        html.light .text-slate-600 {
+            color: #475569 !important;
+        }
+
+        html.light .text-white {
+            color: #05070A !important;
+        }
+
+        /* Inputs */
+        html.light input,
+        html.light select,
+        html.light textarea {
+            background: var(--input-bg) !important;
+            color: var(--text-main) !important;
+            border-color: var(--border-col) !important;
+        }
+
+        /* Clean overrides for Light Mode */
+        html.light .bg-black\/40,
+        html.light .bg-black\/20,
+        html.light .bg-black\/60,
+        html.light .bg-black\/80 {
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(8px);
+        }
+
+        html.light .bg-\[\#0a0a0a\],
+        html.light .bg-\[\#111\] {
+            background: #F8FAFC !important;
+            border-color: #E2E8F0 !important;
+        }
+
+        html.light [class*="bg-slate-7"],
+        html.light [class*="bg-slate-8"] {
+            background: rgba(0, 0, 0, 0.06) !important;
+        }
+
+        /* Orbs */
+        .orb-1 {
+            background: var(--bg-orb1) !important;
+        }
+
+        .orb-2 {
+            background: var(--bg-orb2) !important;
+        }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--scrollbar-hover);
+        }
+
+        /* Theme toggle button */
+        #theme-toggle {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            border-radius: 14px;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: background 0.35s ease, box-shadow 0.35s ease;
+            background: linear-gradient(135deg, #1e293b, #334155);
+            box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.2);
+            flex-shrink: 0;
+        }
+
+        html.light #theme-toggle {
+            background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.3);
+        }
+
+        #theme-toggle-knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #94a3b8;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.35s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        html.light #theme-toggle-knob {
+            transform: translateX(24px);
+            background: #0ea5e9;
+        }
+    </style>
+
+    <!-- Apply saved theme BEFORE render to prevent flash -->
+    <script>
+            (function () {
+                if (localStorage.getItem('theme') === 'light') {
+                    document.documentElement.classList.replace('dark', 'light');
+                }
+            })();
+    </script>
+</head>
+
+<body class="antialiased h-screen flex overflow-hidden selection:bg-purple-500/30">
+
+    <!-- Background Animated Orbs -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-[-1]">
+        <div
+            class="orb-1 absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full mix-blend-screen filter blur-[100px]">
+        </div>
+        <div
+            class="orb-2 absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full mix-blend-screen filter blur-[100px]">
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside
+        class="w-72 backdrop-blur-2xl border-r flex flex-col h-full z-20 shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.4)]">
+        <!-- Logo Area -->
+        <div class="h-20 flex items-center px-6 border-b border-slate-800/60 bg-black/20">
+            <div class="p-2 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg shadow-lg mr-3">
+                <i data-lucide="shield-check" class="w-6 h-6 text-white drop-shadow-md"></i>
+            </div>
+            <h1
+                class="text-2xl font-black tracking-tighter bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent drop-shadow-sm">
+                SAFE GURDIAN
+            </h1>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+            <a href="/"
+                class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 font-bold tracking-wide {% if request.path == '/' %}bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.15)]{% else %}text-slate-400 hover:text-white hover:bg-white/5 border border-transparent{% endif %}">
+                <i data-lucide="layout-dashboard"
+                    class="w-5 h-5 {% if request.path == '/' %}text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]{% endif %}"></i>
+                <span>DASHBOARD</span>
+            </a>
+
+            <a href="/cameras"
+                class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 font-bold tracking-wide {% if request.path == '/cameras' %}bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.15)]{% else %}text-slate-400 hover:text-white hover:bg-white/5 border border-transparent{% endif %}">
+                <i data-lucide="video"
+                    class="w-5 h-5 {% if request.path == '/cameras' %}text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]{% endif %}"></i>
+                <span>CAMERAS</span>
+            </a>
+
+            <a href="/alerts"
+                class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 font-bold tracking-wide {% if request.path == '/alerts' %}bg-red-500/15 text-red-400 border border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.15)]{% else %}text-slate-400 hover:text-white hover:bg-white/5 border border-transparent{% endif %}">
+                <i data-lucide="alert-triangle"
+                    class="w-5 h-5 {% if request.path == '/alerts' %}text-red-400 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]{% endif %}"></i>
+                <span>ALERTS</span>
+            </a>
+
+            <a href="/history"
+                class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 font-bold tracking-wide {% if request.path == '/history' %}bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.15)]{% else %}text-slate-400 hover:text-white hover:bg-white/5 border border-transparent{% endif %}">
+                <i data-lucide="database"
+                    class="w-5 h-5 {% if request.path == '/history' %}text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]{% endif %}"></i>
+                <span>HISTORY</span>
+            </a>
+
+            <a href="/settings"
+                class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 font-bold tracking-wide {% if request.path == '/settings' %}bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.15)]{% else %}text-slate-400 hover:text-white hover:bg-white/5 border border-transparent{% endif %}">
+                <i data-lucide="settings"
+                    class="w-5 h-5 {% if request.path == '/settings' %}text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]{% endif %}"></i>
+                <span>SETTINGS</span>
+            </a>
+        </nav>
+
+        <!-- Status + Theme Toggle -->
+        <div class="p-4 border-t border-border bg-black/20 space-y-4">
+            <!-- Dark / Light toggle -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2 text-xs text-slate-400 font-bold uppercase tracking-widest">
+                    <i data-lucide="sun" class="w-4 h-4 text-amber-400"></i>
+                    <span id="theme-label">Dark Mode</span>
+                </div>
+                <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light / dark mode"
+                    aria-label="Toggle theme">
+                    <div id="theme-toggle-knob">🌙</div>
+                </button>
+            </div>
+
+            <!-- Server status -->
+            <div class="flex items-center space-x-3 text-sm text-slate-400">
+                <div class="relative flex h-2.5 w-2.5">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                </div>
+                <span>Server Online</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content wrapper -->
+    <div class="flex-1 flex flex-col min-w-0">
+        <!-- Top Status Bar -->
+        <header class="h-20 flex items-center justify-between px-8 backdrop-blur-xl border-b z-10 shrink-0">
+            <div>
+                <h2 class="text-2xl font-black text-white tracking-widest uppercase drop-shadow-md">
+                    {% block header_title %}Overview{% endblock %}
+                </h2>
+            </div>
+
+            <!-- Global Action Icons -->
+            <div class="flex items-center space-x-4">
+                <a href="/alerts"
+                    class="p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition relative"
+                    title="Alerts">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <span class="absolute top-1 right-2 w-2 h-2 bg-red-500 rounded-full border border-dark"></span>
+                </a>
+                <a href="/settings" class="p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition"
+                    title="Settings">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 overflow-y-auto p-6 relative">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Initialize Lucide Icons -->
+    <script>
+        lucide.createIcons();
+    </script>
+
+    <!-- Theme toggle logic -->
+    <script>
+        function applyTheme(theme) {
+            const html = document.documentElement;
+            const knob = document.getElementById('theme-toggle-knob');
+            const label = document.getElementById('theme-label');
+            if (theme === 'light') {
+                html.classList.replace('dark', 'light');
+                knob.textContent = '☀️';
+                if (label) label.textContent = 'Light Mode';
+            } else {
+                html.classList.replace('light', 'dark');
+                knob.textContent = '🌙';
+                if (label) label.textContent = 'Dark Mode';
+            }
+        }
+
+        function toggleTheme() {
+            const isLight = document.documentElement.classList.contains('light');
+            const next = isLight ? 'dark' : 'light';
+            localStorage.setItem('theme', next);
+            applyTheme(next);
+        }
+
+        // Apply on load (class set before body by inline script, just sync label/knob)
+        applyTheme(localStorage.getItem('theme') || 'dark');
+    </script>
+
+    <!-- Page Specific Scripts -->
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,15 @@
+google_api_python_client==2.187.0
+numpy>=1.26.0
+opencv_contrib_python==4.11.0.86
+opencv_python==4.11.0.86
+opencv_python_headless==4.10.0.84
+Pillow==12.0.0
+protobuf==3.20.3
+Requests==2.32.5
+ultralytics==8.3.224
+fastapi
+uvicorn
+python-multipart
+Flask
+python-dotenv
+waitress

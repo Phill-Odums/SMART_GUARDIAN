@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}History{% endblock %}
+{% block header_title %}Detection History Database{% endblock %}
+
+{% block content %}
+<div class="h-full flex flex-col space-y-6">
+
+    <div class="bg-panel border border-border rounded-xl shadow-lg backdrop-blur-md flex flex-col flex-1 overflow-hidden">
+
+        <!-- Search & Control Header -->
+        <div class="p-4 border-b border-border bg-black/20 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="relative w-full sm:w-96">
+                <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                <input type="text" id="history-search" placeholder="Search by class, camera, or ID..."
+                    class="w-full bg-black/40 border border-border rounded-lg pl-9 pr-4 py-2 text-sm outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition text-white"
+                    oninput="filterRows()">
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="loadHistory()"
+                    class="bg-white/5 hover:bg-white/10 text-white px-3 py-2 rounded-lg text-sm transition flex items-center">
+                    <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i> Refresh
+                </button>
+                <button onclick="exportCSV()"
+                    class="bg-cyan-600/20 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-600/40 px-3 py-2 rounded-lg text-sm transition flex items-center">
+                    <i data-lucide="download" class="w-4 h-4 mr-2"></i> Export CSV
+                </button>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="flex-1 overflow-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead class="bg-black/40 sticky top-0 z-10 backdrop-blur-sm">
+                    <tr>
+                        <th class="p-4 font-semibold text-slate-400 border-b border-border">ID</th>
+                        <th class="p-4 font-semibold text-slate-400 border-b border-border">Timestamp</th>
+                        <th class="p-4 font-semibold text-slate-400 border-b border-border">Camera</th>
+                        <th class="p-4 font-semibold text-slate-400 border-b border-border">Object Class</th>
+                        <th class="p-4 font-semibold text-slate-400 border-b border-border">Confidence</th>
+                        <th class="p-4 font-semibold text-slate-400 border-b border-border text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border text-slate-300" id="history-table-body">
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-slate-500">
+                            <i data-lucide="loader-2" class="w-5 h-5 inline animate-spin mr-2"></i> Loading detections...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-4 border-t border-border bg-black/20 flex justify-between items-center text-sm text-slate-400">
+            <div id="history-count">Loading...</div>
+            <div class="flex items-center space-x-1 text-xs text-slate-600">
+                <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                <span>Auto-refreshes every 10s</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const CLASS_COLORS = {
+        person:  'bg-purple-500/20 text-purple-400 border-purple-500/20',
+        gun:     'bg-red-500/20 text-red-400 border-red-500/20',
+        knife:   'bg-orange-500/20 text-orange-400 border-orange-500/20',
+        sword:   'bg-amber-500/20 text-amber-400 border-amber-500/20',
+    };
+
+    let allRows = [];
+
+    function classColor(label) {
+        return CLASS_COLORS[(label || '').toLowerCase()] || 'bg-cyan-500/20 text-cyan-400 border-cyan-500/20';
+    }
+
+    function renderRow(d) {
+        const conf = d.confidence != null ? (parseFloat(d.confidence) * 100).toFixed(1) + '%' : 'N/A';
+        const color = classColor(d.object_class);
+        const camId = String(d.camera_id).padStart(2, '0');
+        const imgBtn = d.image_path
+            ? `<button onclick="viewImage('${d.image_path}')" class="text-slate-400 hover:text-white transition p-1" title="View Image"><i data-lucide="image" class="w-4 h-4"></i></button>`
+            : `<span class="text-slate-600 text-xs">No image</span>`;
+        return `<tr class="hover:bg-white/[0.02] transition cursor-default">
+            <td class="p-4 font-mono text-xs text-slate-500">#${d.id}</td>
+            <td class="p-4">${d.timestamp || '&mdash;'}</td>
+            <td class="p-4"><span class="px-2 py-1 rounded bg-black/40 border border-border font-mono text-xs">CAM-${camId}</span></td>
+            <td class="p-4"><span class="px-2 py-1 rounded font-semibold text-xs border ${color}">${d.object_class || 'unknown'}</span></td>
+            <td class="p-4 text-cyan-400">${conf}</td>
+            <td class="p-4 text-right">${imgBtn}</td>
+        </tr>`;
+    }
+
+    function filterRows() {
+        const q = document.getElementById('history-search').value.toLowerCase();
+        const filtered = q
+            ? allRows.filter(d =>
+                (d.object_class || '').toLowerCase().includes(q) ||
+                String(d.camera_id).includes(q) ||
+                String(d.id).includes(q))
+            : allRows;
+        renderTable(filtered);
+    }
+
+    function renderTable(rows) {
+        const tbody = document.getElementById('history-table-body');
+        if (!rows.length) {
+            tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">No detections recorded yet. Enable AI on a camera to start logging.</td></tr>`;
+            document.getElementById('history-count').textContent = '0 entries';
+            return;
+        }
+        tbody.innerHTML = rows.map(renderRow).join('');
+        document.getElementById('history-count').textContent = `Showing ${rows.length} of ${allRows.length} entries`;
+        lucide.createIcons();
+    }
+
+    async function loadHistory() {
+        try {
+            const res = await fetch('/get_detections');
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            allRows = data.detections || [];
+            filterRows();
+        } catch (err) {
+            document.getElementById('history-table-body').innerHTML =
+                `<tr><td colspan="6" class="p-8 text-center text-red-400">Error loading data: ${err.message}</td></tr>`;
+            document.getElementById('history-count').textContent = 'Error';
+        }
+    }
+
+    function viewImage(path) {
+        window.open('/alert_image?path=' + encodeURIComponent(path), '_blank');
+    }
+
+    function exportCSV() {
+        if (!allRows.length) return;
+        const header = 'ID,Timestamp,Camera,Class,Confidence\n';
+        const rows = allRows.map(d =>
+            `${d.id},"${d.timestamp}","${d.camera_id}","${d.object_class}",${d.confidence}`
+        ).join('\n');
+        const blob = new Blob([header + rows], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'detection_history.csv';
+        a.click();
+    }
+
+    loadHistory();
+    setInterval(loadHistory, 10000);
+</script>
+{% endblock %}

@@ -1,0 +1,39 @@
+# app/motion_manager.py
+import cv2
+import numpy as np
+from app.logger import logger
+
+class MotionDetector:
+    def __init__(self, min_area:int=500):
+        self.min_area = min_area
+        self.prev_gray = None
+
+    def detect(self, frame):
+        """
+        frame: BGR numpy array
+        returns: (motion_flag:bool, annotated_frame)
+        """
+        if frame is None:
+            return False, frame
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.GaussianBlur(gray, (21,21), 0)
+
+        if self.prev_gray is None:
+            self.prev_gray = gray
+            return False, frame
+
+        delta = cv2.absdiff(self.prev_gray, gray)
+        thresh = cv2.threshold(delta, 25, 255, cv2.THRESH_BINARY)[1]
+        thresh = cv2.dilate(thresh, None, iterations=2)
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        motion = False
+        for c in contours:
+            if cv2.contourArea(c) < self.min_area:
+                continue
+            x,y,w,h = cv2.boundingRect(c)
+            cv2.rectangle(frame, (x,y),(x+w,y+h),(0,255,0),2)
+            motion = True
+
+        self.prev_gray = gray
+        return motion, frame

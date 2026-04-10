@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+
+{% block title %}Settings{% endblock %}
+{% block header_title %}System Configuration{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6 pb-20">
+
+    <!-- Card 0: System Security Lock -->
+    <div class="bg-panel border border-amber-500/30 rounded-xl shadow-[0_0_30px_rgba(245,158,11,0.1)] backdrop-blur-md overflow-hidden" id="security-card">
+        <div class="p-4 border-b border-amber-500/20 bg-amber-500/5 flex items-center justify-between">
+            <div class="flex items-center">
+                <i data-lucide="shield-alert" class="w-5 h-5 text-amber-500 mr-2"></i>
+                <h3 class="font-semibold text-slate-200">System Security Lock</h3>
+            </div>
+            <div id="lock-status" class="px-3 py-1 bg-red-500/20 text-red-400 text-xs font-bold rounded-full border border-red-500/30 flex items-center">
+                <i data-lucide="lock" class="w-3 h-3 mr-1"></i> LOCKED
+            </div>
+        </div>
+
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Unlock Password</label>
+                    <div class="relative">
+                        <input type="password" id="unlock-password" placeholder="Enter password to edit settings"
+                            class="w-full bg-black/40 border border-border rounded-lg pl-10 pr-4 py-2.5 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all text-white text-sm">
+                        <i data-lucide="key" class="absolute left-3 top-3 w-4 h-4 text-slate-500"></i>
+                    </div>
+                </div>
+                <div class="flex space-x-3">
+                    <button id="unlock-btn" onclick="toggleLock()"
+                        class="flex-1 bg-amber-600 hover:bg-amber-500 text-white px-6 py-2.5 rounded-lg font-bold transition flex items-center justify-center">
+                        <i data-lucide="unlock" class="w-4 h-4 mr-2"></i> Unlock
+                    </button>
+                    <button id="lock-btn" onclick="forceLock()" disabled
+                        class="px-4 py-2.5 rounded-lg font-bold transition border border-slate-700 text-slate-500 opacity-50 cursor-not-allowed flex items-center">
+                        <i data-lucide="lock" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Hidden when locked -->
+            <div id="change-password-section" class="mt-6 pt-6 border-t border-border hidden">
+                <label class="block text-xs font-bold text-emerald-400 uppercase mb-2">Change System Password</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="password" id="new-password" placeholder="New Password (min 4 chars)"
+                        class="w-full bg-black/40 border border-border rounded-lg px-4 py-2 outline-none focus:border-emerald-500 transition-all text-white text-sm">
+                    <div class="text-xs text-slate-500 flex items-center italic">
+                        Changing this will lock the settings again.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay container for other cards -->
+    <div id="settings-content" class="space-y-6 opacity-60 pointer-events-none transition-all duration-500 grayscale-[0.5]">
+        
+        <!-- Card 1: AI Detection Settings -->
+        <div class="bg-panel border border-border rounded-xl shadow-lg backdrop-blur-md overflow-hidden">
+            <div class="p-4 border-b border-border bg-black/20 flex items-center">
+                <i data-lucide="brain" class="w-5 h-5 text-purple-400 mr-2"></i>
+                <h3 class="font-semibold text-slate-200">AI Detection Engine</h3>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-medium text-slate-300">Global Confidence Threshold</label>
+                        <span class="text-sm font-bold bg-purple-500/20 text-purple-300 px-2 py-1 rounded-md"
+                            id="conf-val">65%</span>
+                    </div>
+                    <input type="range" min="10" max="95" value="65" id="setting-confidence"
+                        class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500 disabled:opacity-50"
+                        oninput="document.getElementById('conf-val').innerText = this.value + '%'">
+                    <p class="text-xs text-slate-500 mt-2">Detections below this confidence percentage will be ignored to
+                        reduce false positives.</p>
+                </div>
+
+                <div class="pt-4 border-t border-border">
+                    <label class="block text-sm font-medium text-slate-300 mb-3">Target Object Classes</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <label class="flex items-center space-x-2 bg-black/40 border border-border p-3 rounded-lg cursor-pointer hover:border-purple-500/50 transition opacity-80">
+                            <input type="checkbox" id="class-person" class="rounded text-purple-500 bg-slate-800 border-slate-600 focus:ring-purple-500">
+                            <span class="text-sm text-slate-300">Person</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-black/40 border border-border p-3 rounded-lg cursor-pointer hover:border-purple-500/50 transition opacity-80">
+                            <input type="checkbox" id="class-vehicle" class="rounded text-purple-500 bg-slate-800 border-slate-600 focus:ring-purple-500">
+                            <span class="text-sm text-slate-300">Guns</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-black/40 border border-border p-3 rounded-lg cursor-pointer hover:border-purple-500/50 transition opacity-80">
+                            <input type="checkbox" id="class-bicycle" class="rounded text-purple-500 bg-slate-800 border-slate-600 focus:ring-purple-500">
+                            <span class="text-sm text-slate-300">Knives</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-black/40 border border-border p-3 rounded-lg cursor-pointer hover:border-purple-500/50 transition opacity-80">
+                            <input type="checkbox" id="class-animal" class="rounded text-purple-500 bg-slate-800 border-slate-600 focus:ring-purple-500">
+                            <span class="text-sm text-slate-300">Swords</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Alert System -->
+        <div class="bg-panel border border-border rounded-xl shadow-lg backdrop-blur-md overflow-hidden">
+            <div class="p-4 border-b border-border bg-black/20 flex items-center">
+                <i data-lucide="bell-ring" class="w-5 h-5 text-red-400 mr-2"></i>
+                <h3 class="font-semibold text-slate-200">Alert Notifications</h3>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm font-medium text-slate-200">Enable Push Notifications</div>
+                        <div class="text-xs text-slate-500">Send alerts to configured Telegram / WhatsApp bots</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="setting-push" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                    </label>
+                </div>
+
+                <div class="pt-4 border-t border-border">
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Alert Cooldown Period (Seconds)</label>
+                    <select id="setting-cooldown" class="w-full md:w-1/2 bg-black/40 border border-border rounded-lg px-4 py-2 outline-none text-white appearance-none">
+                        <option value="10">10 seconds</option>
+                        <option value="30">30 seconds</option>
+                        <option value="60">1 minute</option>
+                        <option value="300">5 minutes</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Storage & Cloud -->
+        <div class="bg-panel border border-border rounded-xl shadow-lg backdrop-blur-md overflow-hidden">
+            <div class="p-4 border-b border-border bg-black/20 flex items-center">
+                <i data-lucide="cloud" class="w-5 h-5 text-cyan-400 mr-2"></i>
+                <h3 class="font-semibold text-slate-200">Storage & Backup</h3>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm font-medium text-slate-200">Google Drive Backup</div>
+                        <div class="text-xs text-slate-500">Automatically upload alert snapshots to cloud storage</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="setting-gdrive" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
+                    </label>
+                </div>
+
+                <!-- AfricasTalking SMS Configuration -->
+                <div class="pt-6 border-t border-border space-y-4">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-yellow-400">Africa's Talking — SMS</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="password" id="setting-africastalking-apikey" placeholder="API Key" class="bg-black/40 border border-border rounded-lg px-4 py-2 text-white text-sm">
+                        <input type="text" id="setting-africastalking-username" placeholder="Username" class="bg-black/40 border border-border rounded-lg px-4 py-2 text-white text-sm">
+                        <input type="text" id="setting-africastalking-phones" placeholder="Phone Numbers" class="md:col-span-2 bg-black/40 border border-border rounded-lg px-4 py-2 text-white text-sm">
+                    </div>
+                </div>
+
+                <!-- Bots -->
+                <div class="pt-6 border-t border-border space-y-6">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-cyan-400">Bot Integrations</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="password" id="setting-telegram-token" placeholder="Telegram Token" class="bg-black/40 border border-border rounded-lg px-4 py-2 text-white text-sm">
+                        <input type="text" id="setting-telegram-chatid" placeholder="Telegram Chat ID" class="bg-black/40 border border-border rounded-lg px-4 py-2 text-white text-sm">
+                        <input type="password" id="setting-whatsapp-token" placeholder="WhatsApp Token" class="bg-black/40 border border-border rounded-lg px-4 py-2 text-white text-sm">
+                        <input type="text" id="setting-whatsapp-phone" placeholder="WhatsApp Phone" class="bg-black/40 border border-border rounded-lg px-4 py-2 text-white text-sm">
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-border grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Local Retention Policy</label>
+                        <select id="setting-retention" class="w-full bg-black/40 border border-border rounded-lg px-4 py-2 text-white appearance-none">
+                            <option value="7">7 Days</option>
+                            <option value="30">30 Days</option>
+                            <option value="90">90 Days</option>
+                            <option value="0">Never Delete</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Inference Device</label>
+                        <select id="setting-device" class="w-full bg-black/40 border border-purple-500/30 rounded-lg px-4 py-2 text-white font-bold transition-all focus:border-purple-500 appearance-none">
+                            <option value="cpu">⚡ CPU (Standard)</option>
+                            <option value="cuda">🚀 NVIDIA GPU (CUDA)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="flex justify-end pt-4">
+            <button id="save-btn" onclick="saveSettings()"
+                class="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-8 py-3 rounded-xl font-bold tracking-wide shadow-lg transition transform hover:-translate-y-0.5 flex items-center">
+                <i data-lucide="save" class="w-5 h-5 mr-2"></i> Save Configuration
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isUnlocked = false;
+
+    // Load existing settings on page load
+    window.addEventListener('load', async () => {
+        try {
+            const res = await fetch('/api/settings');
+            const data = await res.json();
+
+            document.getElementById('setting-confidence').value = data.confidence_threshold;
+            document.getElementById('conf-val').innerText = data.confidence_threshold + '%';
+            document.getElementById('class-person').checked = data.target_classes.person;
+            document.getElementById('class-vehicle').checked = data.target_classes.vehicle;
+            document.getElementById('class-bicycle').checked = data.target_classes.bicycle;
+            document.getElementById('class-animal').checked = data.target_classes.animal;
+            document.getElementById('setting-push').checked = data.push_notifications;
+            document.getElementById('setting-cooldown').value = data.alert_cooldown;
+            document.getElementById('setting-gdrive').checked = data.gdrive_backup;
+            document.getElementById('setting-retention').value = data.retention_policy;
+            document.getElementById('setting-device').value = data.inference_device || 'cpu';
+            document.getElementById('setting-telegram-token').value = data.telegram_token || '';
+            document.getElementById('setting-telegram-chatid').value = data.telegram_chat_id || '';
+            document.getElementById('setting-whatsapp-token').value = data.whatsapp_token || '';
+            document.getElementById('setting-whatsapp-phone').value = data.whatsapp_phone || '';
+            document.getElementById('setting-africastalking-apikey').value = data.africastalking_api_key || '';
+            document.getElementById('setting-africastalking-username').value = data.africastalking_username || '';
+            document.getElementById('setting-africastalking-phones').value = data.africastalking_phone_numbers || '';
+        } catch (error) {
+            console.error('Error loading settings:', error);
+        }
+    });
+
+    async function toggleLock() {
+        const pass = document.getElementById('unlock-password').value;
+        const btn = document.getElementById('unlock-btn');
+        if (!pass) {
+            alert("Please enter password to unlock.");
+            return;
+        }
+
+        const originalBtn = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 mr-2 animate-spin"></i> Verifying...';
+        btn.disabled = true;
+        
+        try {
+            const res = await fetch('/api/verify_password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: pass })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                isUnlocked = true;
+                updateUIState();
+            } else {
+                alert("Incorrect password. Access denied.");
+                btn.innerHTML = originalBtn;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        } catch (error) {
+            console.error('Error verifying password:', error);
+            alert("Connection error. Could not verify password.");
+            btn.innerHTML = originalBtn;
+            btn.disabled = false;
+            lucide.createIcons();
+        }
+    }
+
+    function forceLock() {
+        isUnlocked = false;
+        document.getElementById('unlock-password').value = '';
+        updateUIState();
+    }
+
+    function updateUIState() {
+        const content = document.getElementById('settings-content');
+        const status = document.getElementById('lock-status');
+        const unlockBtn = document.getElementById('unlock-btn');
+        const lockBtn = document.getElementById('lock-btn');
+        const passSection = document.getElementById('change-password-section');
+
+        if (isUnlocked) {
+            content.classList.remove('opacity-60', 'pointer-events-none', 'grayscale-[0.5]');
+            status.innerHTML = '<i data-lucide="unlock" class="w-3 h-3 mr-1"></i> UNLOCKED';
+            status.classList.replace('bg-red-500/20', 'bg-emerald-500/20');
+            status.classList.replace('text-red-400', 'text-emerald-400');
+            status.classList.replace('border-red-500/30', 'border-emerald-500/30');
+            unlockBtn.classList.add('hidden');
+            lockBtn.classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
+            lockBtn.disabled = false;
+            passSection.classList.remove('hidden');
+        } else {
+            content.classList.add('opacity-60', 'pointer-events-none', 'grayscale-[0.5]');
+            status.innerHTML = '<i data-lucide="lock" class="w-3 h-3 mr-1"></i> LOCKED';
+            status.classList.replace('bg-emerald-500/20', 'bg-red-500/20');
+            status.classList.replace('text-emerald-400', 'text-red-400');
+            status.classList.replace('border-emerald-500/30', 'border-red-500/30');
+            unlockBtn.classList.remove('hidden');
+            lockBtn.classList.add('hidden');
+            passSection.classList.add('hidden');
+        }
+        lucide.createIcons();
+    }
+
+    async function saveSettings() {
+        const authPass = document.getElementById('unlock-password').value;
+        const newPass = document.getElementById('new-password').value;
+        const btn = document.getElementById('save-btn');
+        const originalText = btn.innerHTML;
+        
+        btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 mr-2 animate-spin"></i> Validating & Saving...';
+        btn.disabled = true;
+
+        const payload = {
+            auth_password: authPass,
+            new_system_password: newPass,
+            confidence_threshold: parseInt(document.getElementById('setting-confidence').value),
+            target_classes: {
+                person: document.getElementById('class-person').checked,
+                vehicle: document.getElementById('class-vehicle').checked,
+                bicycle: document.getElementById('class-bicycle').checked,
+                animal: document.getElementById('class-animal').checked
+            },
+            push_notifications: document.getElementById('setting-push').checked,
+            alert_cooldown: parseInt(document.getElementById('setting-cooldown').value),
+            gdrive_backup: document.getElementById('setting-gdrive').checked,
+            retention_policy: parseInt(document.getElementById('setting-retention').value),
+            inference_device: document.getElementById('setting-device').value,
+            telegram_token: document.getElementById('setting-telegram-token').value,
+            telegram_chat_id: document.getElementById('setting-telegram-chatid').value,
+            whatsapp_token: document.getElementById('setting-whatsapp-token').value,
+            whatsapp_phone: document.getElementById('setting-whatsapp-phone').value,
+            africastalking_api_key: document.getElementById('setting-africastalking-apikey').value,
+            africastalking_username: document.getElementById('setting-africastalking-username').value,
+            africastalking_phone_numbers: document.getElementById('setting-africastalking-phones').value
+        };
+
+        try {
+            const res = await fetch('/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                btn.innerHTML = '<i data-lucide="check" class="w-5 h-5 mr-2"></i> Authorized & Saved';
+                btn.classList.add('bg-emerald-600');
+                
+                if (newPass) {
+                    forceLock();
+                    document.getElementById('new-password').value = '';
+                }
+
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('bg-emerald-600');
+                    lucide.createIcons();
+                    btn.disabled = false;
+                }, 2000);
+            } else {
+                alert(data.error || "Failed to save settings");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        } catch (error) {
+            console.error('Error saving settings:', error);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            lucide.createIcons();
+        }
+    }
+</script>
+{% endblock %}

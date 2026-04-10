@@ -1,0 +1,22 @@
+{
+    "confidence_threshold": 46,
+    "target_classes": {
+        "person": true,
+        "vehicle": false,
+        "bicycle": false,
+        "animal": false
+    },
+    "push_notifications": true,
+    "alert_cooldown": 30,
+    "gdrive_backup": false,
+    "retention_policy": 30,
+    "telegram_token": "",
+    "telegram_chat_id": "",
+    "whatsapp_token": "",
+    "whatsapp_phone": "",
+    "africastalking_username": "",
+    "africastalking_api_key": "",
+    "africastalking_phone_numbers": "",
+    "system_password": "admin",
+    "inference_device": "cpu"
+}
