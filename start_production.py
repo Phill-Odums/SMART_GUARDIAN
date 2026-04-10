@@ -8,8 +8,11 @@ from waitress import serve
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 from web.app import app
+from init_db import init_db
 
 if __name__ == "__main__":
+    # Ensure database exists
+    init_db()
     # Get local IP for convenience
     import socket
     hostname = socket.gethostname()
