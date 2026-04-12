@@ -271,56 +271,7 @@
     </div>
 
     <script>
-        // ── Animated counter ──────────────────────────────────────────────────
-        function animateCount(el, target, suffix = '') {
-            const duration = 600;
-            const start = performance.now();
-            const from = parseInt(el.textContent.replace(/[^0-9]/g, '')) || 0;
-            function step(now) {
-                const t = Math.min((now - start) / duration, 1);
-                const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-                el.textContent = Math.round(from + (target - from) * ease).toLocaleString() + suffix;
-                if (t < 1) requestAnimationFrame(step);
-            }
-            requestAnimationFrame(step);
-        }
-
-        // ── Load stats cards ─────────────────────────────────────────────────
-        async function loadStats() {
-            try {
-                const res = await fetch('/get_stats');
-                const data = await res.json();
-                const s = data.summary || {};
-
-                // Active cameras
-                const camEl = document.getElementById('stat-active-cameras');
-                animateCount(camEl, s.active_cameras ?? 0);
-
-                // Total detections
-                const detEl = document.getElementById('stat-total-detections');
-                animateCount(detEl, s.total_detections ?? 0);
-
-                // Alerts triggered
-                const altEl = document.getElementById('stat-alerts-triggered');
-                animateCount(altEl, s.alerts_triggered ?? 0);
-
-                // Flash red icon if there are alerts
-                const iconBox = document.getElementById('stat-alerts-icon');
-                if ((s.alerts_triggered ?? 0) > 0) {
-                    iconBox.classList.add('animate-pulse');
-                } else {
-                    iconBox.classList.remove('animate-pulse');
-                }
-
-                // Uptime
-                document.getElementById('stat-uptime').textContent = s.uptime ?? '--';
-
-            } catch (e) {
-                console.error('Stats fetch error:', e);
-            }
-        }
-
-        // ── Load recent alerts sidebar ────────────────────────────────────────
+        // ── Recent Alerts Sidebar ───────────────────────────────────────────
         const ALERT_BORDER = {
             person: 'border-red-500',
             gun:    'border-amber-500',
@@ -472,9 +423,8 @@
         }
 
         // ── Initial load + auto-refresh ───────────────────────────────────────
-        loadStats();
         loadRecentAlerts();
-        setInterval(() => { loadStats(); loadRecentAlerts(); }, 15000);
+        setInterval(() => { loadRecentAlerts(); }, 15000);
     </script>
 
     {% endblock %}

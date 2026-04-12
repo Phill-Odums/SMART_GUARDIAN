@@ -1,17 +1,17 @@
 {
-    "confidence_threshold": 46,
+    "confidence_threshold": 42,
     "target_classes": {
         "person": true,
-        "vehicle": false,
-        "bicycle": false,
-        "animal": false
+        "vehicle": true,
+        "bicycle": true,
+        "animal": true
     },
     "push_notifications": true,
-    "alert_cooldown": 30,
-    "gdrive_backup": false,
-    "retention_policy": 30,
-    "telegram_token": "",
-    "telegram_chat_id": "",
+    "alert_cooldown": 10,
+    "gdrive_backup": true,
+    "retention_policy": 7,
+    "telegram_token": "8368038080:AAHqGhqpJozaSSnNqH2yEZBEt5tyKwxsQHA",
+    "telegram_chat_id": "6427405894",
     "whatsapp_token": "",
     "whatsapp_phone": "",
     "africastalking_username": "",

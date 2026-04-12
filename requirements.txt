@@ -13,3 +13,4 @@ python-multipart
 Flask
 python-dotenv
 waitress
+pywebview

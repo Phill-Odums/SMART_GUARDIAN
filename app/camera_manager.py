@@ -128,6 +128,12 @@ class ThreadedCamera:
     def set_ai(self, state: bool):
         self.ai_enabled = state
 
+    def get_frame(self) -> Tuple[bool, Optional[cv2.Mat]]:
+        with self.lock:
+            if self.raw_frame is not None:
+                return True, self.raw_frame.copy()
+        return False, None
+
     def stop(self):
         self.stopped = True
         if self.cap:
@@ -169,6 +175,12 @@ class CameraManager:
         if index not in self.cameras:
             return self.add_camera(index)
         return True
+
+    def get_frame(self, index:int=0) -> Tuple[bool, Optional[cv2.Mat]]:
+        t_cam = self.cameras.get(index)
+        if t_cam:
+            return t_cam.get_frame()
+        return False, None
 
     def stop_camera(self, index:int=0):
         self.remove_camera(index)
