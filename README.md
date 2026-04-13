@@ -8,9 +8,9 @@
 
 ## ✨ Key Features
 
-- **🚀 Real-Time AI Detection**: Powered by YOLOv8, the system identifies specific threats including persons and various weapon types (pistols, rifles, swords) with high accuracy.
+- **🚀 Real-Time AI Detection**: Powered by YOLOv5s, the system identifies specific threats including persons and various weapon types (pistols, rifles, swords,knives) with high accuracy.
 - **📹 Multi-Camera Grid**: View and manage multiple camera feeds simultaneously through a responsive, low-latency dashboard.
-- **🔔 Intelligent Alerting**: Instant notifications via **Telegram** and **WhatsApp** when a threat or motion is detected.
+- **🔔 Intelligent Alerting**: Instant notifications via **Telegram**,**local storage**, **Sms** and **WhatsApp** when a threat or motion is detected.
 - **📊 Interactive Dashboard**: Visualize security statistics, event history, and detection trends over time.
 - **💾 Event History & Storage**: Automatically logs all detection events to a local SQLite database and supports backup to **Google Drive**.
 - **🖥️ Desktop Application**: Packaged as a standalone Windows application using `pywebview` for a native user experience.
@@ -21,11 +21,11 @@
 ## 🛠️ Technology Stack
 
 - **Backend**: Python, Flask, FastAPI
-- **AI/ML**: YOLOv8 (Ultralytics), OpenCV
+- **AI/ML**: YOLOv5s (Ultralytics), OpenCV
 - **Frontend**: HTML5, CSS3 (Modern Dark Theme), JavaScript, Chart.js
 - **Database**: SQLite3
 - **App Wrapper**: PyWebView
-- **Integration**: Google Drive API, Telegram Bot API
+- **Integration**: Google Drive API, Telegram Bot API, WhatsApp API, Africanstalking (Offline sma) API
 
 ---
 
@@ -33,7 +33,7 @@
 
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.10.8+
 - Webcam or IP Camera feed
 - Windows OS (for Desktop mode)
 
@@ -67,8 +67,7 @@ python guardian_desktop.py
 
 ### Option 2: Web Server Mode
 To run as a local web server (accessible via browser at `http://127.0.0.1:5000`):
-```bash
-python start_production.py
+```To run the local web app locate web/app.py file and run
 ```
 
 ---
