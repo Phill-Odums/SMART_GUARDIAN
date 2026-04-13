@@ -7,13 +7,13 @@ SETTINGS_FILE = os.path.join(os.getcwd(), 'config', 'settings.json')
 DEFAULT_SETTINGS = {
     "confidence_threshold": 65,
     "target_classes": {
-        "person": True,
+        "person": False,
         "gun": True,
         "knife": True,
         "sword": True
     },
     "push_notifications": True,
-    "alert_cooldown": 30,
+    "alert_cooldown": 10,
     "gdrive_backup": False,
     "retention_policy": 30,
     "telegram_token": "",
@@ -42,8 +42,17 @@ class SettingsManager:
             try:
                 with open(SETTINGS_FILE, 'r') as f:
                     data = json.load(f)
-                    # Merge with defaults to ensure all keys exist
+                    # Merge with defaults: deep merge for target_classes
                     merged = DEFAULT_SETTINGS.copy()
+                    
+                    if "target_classes" in data and isinstance(data["target_classes"], dict):
+                        # Merge the nested dict ensuring we keep defaults if not in file
+                        tc = merged["target_classes"].copy()
+                        # Normalize keys to lowercase for consistent matching
+                        incoming_tc = {k.lower(): v for k, v in data["target_classes"].items()}
+                        tc.update(incoming_tc)
+                        data["target_classes"] = tc
+                    
                     merged.update(data)
                     return merged
             except Exception as e:

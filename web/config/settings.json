@@ -1,7 +1,7 @@
 {
-    "confidence_threshold": 42,
+    "confidence_threshold": 59,
     "target_classes": {
-        "person": true,
+        "person": false,
         "vehicle": true,
         "bicycle": true,
         "animal": true

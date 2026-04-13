@@ -92,12 +92,23 @@ class ThreadedCamera:
                         display_frame, detections = self.detection_manager.run(frame, device=device)
                         self.last_inference_time = now
                         
-                        # Trigger alerts if objects found
+                        # Trigger alerts if objects found (filtering based on target_classes settings)
                         if detections and self.alert_manager:
-                            cooldown = settings_manager.settings.get("alert_cooldown", 30)
-                            if now - last_alert_time >= cooldown:
-                                last_alert_time = now
-                                self._trigger_async_alert(display_frame.copy(), detections)
+                            target_classes = settings_manager.settings.get("target_classes", {})
+                            filtered_detections = [
+                                d for d in detections 
+                                if target_classes.get(d['label'].lower().strip(), True)
+                            ]
+                            
+                            if filtered_detections:
+                                cooldown = settings_manager.settings.get("alert_cooldown", 30)
+                                if now - last_alert_time >= cooldown:
+                                    last_alert_time = now
+                                    logger.info(f"Triggering alert. Detections: {[d['label'] for d in detections]}, Filtered: {[d['label'] for d in filtered_detections]}")
+                                    self._trigger_async_alert(display_frame.copy(), filtered_detections)
+                            else:
+                                if detections:
+                                    logger.debug(f"Filtered out all detections: {[d['label'] for d in detections]}")
 
                 # JPEG Encoding (Done once per frame for all clients)
                 success, buffer = cv2.imencode('.jpg', display_frame, [cv2.IMWRITE_JPEG_QUALITY, 85])

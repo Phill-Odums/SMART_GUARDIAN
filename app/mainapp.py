@@ -9,6 +9,7 @@ from app.alert_manager import AlertManager
 from app.motion_manager import MotionDetector
 from app.logger import logger
 from app.config import Config
+from app.settings_manager import settings_manager
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -17,7 +18,7 @@ class MainApp:
     def __init__(self):
         self.cam_mgr = CameraManager()
         self.detector = DetectionManager(model_path=Config.DEFAULT_MODEL, device=Config.DEVICE, conf=Config.DEFAULT_CONFIDENCE)
-        self.alerts = AlertManager(telegram_token=Config.TELEGRAM_TOKEN, telegram_chat_id=Config.TELEGRAM_CHAT_ID)
+        self.alerts = AlertManager()
         self.motion_detectors = {}
         self.last_alert = {}
         self.alert_cooldown = Config.ALERT_COOLDOWN
@@ -63,11 +64,20 @@ class MainApp:
         annotated, detections = self.detector.run(frame, conf=conf, device=device, model_path=model_path)
         image_to_use = annotated if annotated is not None else frame
 
-        if detections and self._should_alert(cam_index, detections):
-            subject = f"🚨 Camera {cam_index} - {len(detections)} objects"
-            body = ", ".join([d["label"] for d in detections[:3]])
+        # Filtering based on target_classes settings
+        target_classes = settings_manager.settings.get("target_classes", {})
+        filtered_detections = [
+            d for d in detections 
+            if target_classes.get(d['label'].lower().strip(), True)
+        ]
+
+        if filtered_detections and self._should_alert(cam_index, filtered_detections):
+            subject = f"🚨 Camera {cam_index} - {len(filtered_detections)} objects"
+            body = ", ".join([d["label"] for d in filtered_detections[:3]])
             try:
-                self.alerts.send_alert(image_to_use, subject=subject, body=body)
+                # Use filtered_detections for alert
+                self.alerts.send_alert(image_to_use, subject=subject, body=body, camera_id=str(cam_index), detections=filtered_detections)
+                logger.info(f"Alert triggered for labels: {[d['label'] for d in filtered_detections]}")
             except Exception as e:
                 logger.error(f"Alert send failed: {e}")
 
