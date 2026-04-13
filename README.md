@@ -25,7 +25,7 @@
 - **Frontend**: HTML5, CSS3 (Modern Dark Theme), JavaScript, Chart.js
 - **Database**: SQLite3
 - **App Wrapper**: PyWebView
-- **Integration**: Google Drive API, Telegram Bot API, WhatsApp API, Africanstalking (Offline sma) API
+- **Integration**: Google Drive API, Telegram Bot API, WhatsApp API, Africanstalking (Offline sms) API
 
 ---
 
