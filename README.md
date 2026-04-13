@@ -78,7 +78,7 @@ To run the local web app locate web/app.py
 The system settings can be managed directly through the UI in the **Settings** panel. Key configurable parameters include:
 - **Detection Classes**: Enable/Disable specific targets (e.g., Person, Pistol).
 - **Alert Cooldown**: Set the frequency of notifications (default 10s).
-- **Notification Tokens**: Configure your Telegram Bot Token and Chat ID.
+- **Notification Tokens**: Configure your Telegram Bot, WhatsApp Bot or Africanstalking Token and Chat ID.
 - **Cloud Backup**: Toggle Google Drive synchronization.
 
 ---
