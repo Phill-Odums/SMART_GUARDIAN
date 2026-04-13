@@ -67,7 +67,8 @@ python guardian_desktop.py
 
 ### Option 2: Web Server Mode
 To run as a local web server (accessible via browser at `http://127.0.0.1:5000`):
-```To run the local web app locate web/app.py file and run
+```bash
+To run the local web app locate web/app.py 
 ```
 
 ---
