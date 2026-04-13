@@ -57,6 +57,14 @@
 
 ---
 
+## 🔐 First-Time Access
+
+To access the **Settings** or **Admin Dashboard** for the first time:
+- **Default Password**: `admin`
+- **Important**: For security reasons, please Navigate to the **Settings** panel immediately after your first login to update this password.
+
+---
+
 ## 💻 Running the Application
 
 ### Option 1: Desktop Mode (Recommended)
