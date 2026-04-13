@@ -1,6 +1,6 @@
 # 🛡️ SMART GUARDIAN: AI-Powered Surveillance System
 
-![Project Banner](https://raw.githubusercontent.com/Phill-Odums/SMART_GUARDIAN/main/web/static/img/banner.png) <!-- Placeholder for potential banner -->
+![Project Banner](web/static/images/IMG_20260412_111202_757.jpg) <!-- Placeholder for potential banner -->
 
 **Smart Guardian** is a professional-grade security surveillance system that leverages cutting-edge AI to provide real-time threat detection, motion monitoring, and automated alerting. Designed for both high-performance desktop use and versatile web management, it offers a comprehensive solution for modern security needs.
 
